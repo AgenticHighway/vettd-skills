@@ -14,7 +14,8 @@ metadata:
 
 Bring the local `vettd` installation to a working state: binary present,
 credentials configured, and endpoint reachable. This is the only skill that
-modifies vettd configuration.
+modifies vettd configuration. Credential entry (Step 5) is always run by the
+user in their own terminal — never by the agent.
 
 ## When to Use
 
@@ -114,16 +115,25 @@ vettd auth --endpoint https://vettd.agentichighway.ai/api/scans/ingest \
 `--allow-public-endpoint` is required for any non-local endpoint and lives
 on `vettd auth`, not on `vettd auth status`. Public endpoints must be HTTPS.
 
-### Step 5 — Configure credentials (only if needed)
+### Step 5 — Have the user configure credentials (only if needed)
 
 Skip if the user only intends to scan locally.
+
+**Do not run this command yourself.** It prompts interactively for the API
+key, and an agent has no way to satisfy that prompt without the key passing
+through its own process, logs, or context — the same risk this skill already
+avoids by rejecting `--api-key` on the command line.
+
+Ask the user to run the following in their own terminal, then wait for them
+to confirm it's done:
 
 ```bash
 vettd auth --allow-public-endpoint
 ```
 
-Prompts securely for the key. API keys start with `ah_`. Never echo a key
-into a shell command, a log, or a commit.
+API keys start with `ah_`. Never accept a key typed into chat, never type or
+paste one into a command yourself, and never echo a key into a shell
+command, a log, or a commit.
 
 ### Step 6 — Confirm
 
@@ -144,3 +154,4 @@ Report the resulting state, then return to the skill that handed off.
 | Leaving a `localhost` endpoint configured after local testing | Silently breaks every `directory` command. |
 | Passing `--allow-public-endpoint` to `auth status` | That flag exists on `auth`, not `auth status`; `auth status` rejects it as an unexpected argument. |
 | Echoing the API key to confirm it was set | Use `vettd auth status --json` and check `api_key_set`. |
+| Running `vettd auth --allow-public-endpoint` yourself instead of asking the user | The key must never pass through the agent's process or context; hand off to the user's own terminal and wait for confirmation. |
