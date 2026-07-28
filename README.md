@@ -30,6 +30,33 @@ cp -r vettd-skills/skills/* ~/.config/opencode/skills/
 
 Each skill directory is self-contained. Copy one, some, or all.
 
+## Updating
+
+There's no automated update mechanism yet — tracked in
+[vettd-cli#222](https://github.com/AgenticHighway/vettd-cli/issues/222).
+Until then, re-clone to a temp directory and copy the updated files over
+your existing install:
+
+**Claude Code**:
+
+```bash
+git clone https://github.com/AgenticHighway/vettd-skills.git /tmp/vettd-skills-update
+cp -r /tmp/vettd-skills-update/skills/. ~/.claude/skills/
+rm -rf /tmp/vettd-skills-update
+```
+
+**opencode**:
+
+```bash
+git clone https://github.com/AgenticHighway/vettd-skills.git /tmp/vettd-skills-update
+cp -r /tmp/vettd-skills-update/skills/. ~/.config/opencode/skills/
+rm -rf /tmp/vettd-skills-update
+```
+
+This overwrites every skill you've installed from this repo with the
+current version. If you only installed some, copy the specific
+`skills/<name>` directories instead of the whole tree.
+
 ## Skills
 
 | Skill | Use when |
