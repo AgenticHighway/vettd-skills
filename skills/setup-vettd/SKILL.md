@@ -100,7 +100,7 @@ Invoke-WebRequest -Uri https://github.com/AgenticHighway/vettd-cli/releases/late
 Invoke-WebRequest -Uri https://github.com/AgenticHighway/vettd-cli/releases/latest/download/checksums.txt -OutFile checksums.txt
 # Confirm the sha256 for vettd-windows-amd64.exe in checksums.txt matches:
 Get-FileHash vettd.exe -Algorithm SHA256
-Move-Item vettd.exe C:\Windows\System32\vettd.exe   # or any directory already on PATH
+Move-Item vettd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\vettd.exe"   # or any directory already on PATH
 ```
 
 Valid platform/arch pairs: `darwin-arm64`, `darwin-amd64`, `linux-arm64`,
