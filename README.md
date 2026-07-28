@@ -15,6 +15,10 @@ hands off to it when the environment isn't ready.
 
 ## Install
 
+**Fast Track (any agent)** — simply ask any agent to install vettd-skills:
+
+> Please install skills from github.com/AgenticHighway/vettd-skills
+
 **Claude Code** — copy the skill directories you want into `~/.claude/skills/`:
 
 ```bash
@@ -28,13 +32,12 @@ cp -r vettd-skills/skills/* ~/.claude/skills/
 cp -r vettd-skills/skills/* ~/.config/opencode/skills/
 ```
 
-Each skill directory is self-contained. Copy one, some, or all.
+Skill directories contain cross-references, but each is still usable as a standalone 
+skill. Copy one, some, or all.
 
 ## Updating
 
-There's no automated update mechanism yet — tracked in
-[vettd-cli#222](https://github.com/AgenticHighway/vettd-cli/issues/222).
-Until then, re-clone to a temp directory and copy the updated files over
+The current path is to re-clone to a temp directory and copy the updated files over
 your existing install:
 
 **Claude Code**:
