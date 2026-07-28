@@ -14,13 +14,6 @@ metadata:
 
 Detects when a previously-clean artifact has changed since its last scan by diffing two `vettd` JSON reports. Surfaces new findings, resolved findings, and grade transitions that a single scan cannot show on its own. Grade semantics below follow Vettd's published methodology: https://vettd.agentichighway.ai/methodology
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 | Situation | Use this skill? |

@@ -14,13 +14,6 @@ metadata:
 
 This skill turns an agent's own runtime — skills directories, MCP configs, AGENTS.md/CLAUDE.md files, and rule files — into a scanned inventory with flagged findings, using `vettd scan default` as the primary tool. It answers "what am I actually running right now, and is any of it dangerous?" for the agent's own environment, not a third-party artifact under consideration.
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 | Situation | Use this skill? |
@@ -59,18 +52,16 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
 
 ## Workflow
 
-1. **Preflight.** Confirm `vettd auth status --json` passes (see above).
-
-2. **Broad sweep.** Run:
+1. **Broad sweep.** Run:
    ```
    vettd scan default --stdout
    ```
    Capture stdout as the primary JSON payload (`scanMeta`, `prompts`,
    `skills`, `mcpServers`, `agents`, `agenticApps`). Capture stderr
    separately — if it contains `scan depth capped at 5`, note which
-   `scanRoots` were likely truncated; you will need step 4 for those.
+   `scanRoots` were likely truncated; you will need step 3 for those.
 
-3. **Explicitly cover MCP configs (mandatory, do not skip).** Because
+2. **Explicitly cover MCP configs (mandatory, do not skip).** Because
    `mcpServers` in the JSON payload is unreliable (see Known Gap), scan
    known MCP config locations directly, e.g.:
    ```
@@ -80,7 +71,7 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
    Adjust paths to whatever MCP configs actually exist on this host —
    check IDE/editor config directories, not just the ones listed here.
 
-4. **Fill depth-cap gaps.** For any root flagged as truncated in step 2
+3. **Fill depth-cap gaps.** For any root flagged as truncated in step 1
    (or any location you know holds many nested agent artifacts, such as a
    large skills library), rescan it fully:
    ```
@@ -91,7 +82,7 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
    directory-scan sweep root if unsure they were covered: `.cursorrules`,
    `AGENTS.md`, `CLAUDE.md`.
 
-5. **Build the inventory.** Merge all JSON payloads into one list per
+4. **Build the inventory.** Merge all JSON payloads into one list per
    top-level key:
    - `skills[]` — `id` (`<abs-path>:<12-char-hash>`), `name`, `type`,
      `trustLevel`, `overallGrade`, `executionEnvironment`
@@ -101,7 +92,7 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
      (firewall state) per scan run, since multiple scans in this
      workflow each carry their own `scanMeta`
 
-6. **Flag anything risky.** Anything with `overallGrade` of `C` or `F`, or
+5. **Flag anything risky.** Anything with `overallGrade` of `C` or `F`, or
    any `externalScannerResults[].findings[]` entry with `severity` of
    `critical` or `high`, is flagged. Do not re-derive or soften severity —
    report it as-is.
@@ -116,14 +107,14 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
    something graded `A`/`B`, treat it as a scan/grade inconsistency
    worth flagging, not a normal case.
 
-7. **Hand off flagged items.**
+6. **Hand off flagged items.**
 
    ⛔ **MANDATORY HAND-OFF** — invoke **triage-a-flagged-finding**.
 
    Do this for every flagged skill, MCP server, agent, or agentic app
-   found in steps 2–4, before concluding the audit.
+   found in steps 1–3, before concluding the audit.
 
-8. **Report the inventory.** Present a full inventory (not just flagged
+7. **Report the inventory.** Present a full inventory (not just flagged
    items) so the user can see what is currently installed, even where
    nothing was flagged.
 

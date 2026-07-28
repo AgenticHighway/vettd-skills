@@ -17,13 +17,6 @@ evidence and decide whether to remediate, remove, or accept the finding with
 a documented justification. Severity and grade definitions below follow
 Vettd's published methodology: https://vettd.agentichighway.ai/methodology
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 Use this skill whenever you are handed a specific finding (or a short list

@@ -14,13 +14,6 @@ metadata:
 
 Search the public vettd directory for skills that perform a given task, then compare candidates by grade and findings to choose the safest fit — not the first or most popular result.
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 | Trigger | Example |

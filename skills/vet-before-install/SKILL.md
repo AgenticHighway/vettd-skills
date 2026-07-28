@@ -18,13 +18,6 @@ agent directory. The artifact is never installed first and inspected later.
 Grade thresholds below follow Vettd's published methodology:
 https://vettd.agentichighway.ai/methodology
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 | Trigger | Example |

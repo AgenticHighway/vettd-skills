@@ -38,12 +38,15 @@ the skill actually works. Do not inflate it.
 
 ## Required sections
 
-`# Title` → `## Overview` (≤2 sentences) → `## Preflight` → `## When to Use`
+`# Title` → `## Overview` (≤2 sentences) → `## When to Use`
 → `## Command Contract` → `## Workflow` → `## Common Mistakes`.
 Add `## Decision Policy` if the skill makes a go/no-go call.
 
-`setup-vettd` is the only skill without a `## Preflight` block — it is what
-preflight hands off to.
+Do not add a dedicated preflight/setup-check step to a skill's `## Workflow`.
+If a skill's commands can fail because vettd itself isn't installed,
+authenticated, or reachable, cover that as a row in `## Common Mistakes`
+pointing at **setup-vettd**, not as a mandatory first step every skill
+repeats verbatim.
 
 ## Grading methodology is not invented here
 

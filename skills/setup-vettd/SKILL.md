@@ -1,6 +1,6 @@
 ---
 name: setup-vettd
-description: "Use when the vettd binary is missing, unauthenticated, or unreachable, or when another vettd skill hands off because its preflight failed. WHEN: vettd not found, command not found vettd, install vettd, configure vettd, vettd auth, connection refused from vettd, vettd endpoint wrong. DO NOT USE FOR: scanning anything (use vet-before-install or audit-my-agent-environment)."
+description: "Use when the vettd binary is missing, unauthenticated, or unreachable, or when a command from another vettd skill fails because vettd itself isn't set up. WHEN: vettd not found, command not found vettd, install vettd, configure vettd, vettd auth, connection refused from vettd, vettd endpoint wrong. DO NOT USE FOR: scanning anything (use vet-before-install or audit-my-agent-environment)."
 license: MIT
 metadata:
   author: Agentic Highway
@@ -22,7 +22,7 @@ user in their own terminal — never by the agent.
 | Symptom | Cause |
 |---|---|
 | `command not found: vettd` | Binary not installed |
-| Another skill's preflight failed | One of the three states below is bad |
+| A command from another skill failed with a setup-related error | One of the three states below is bad |
 | `Connection refused` from `directory` commands | Endpoint misconfigured — see Step 4 |
 | `not authenticated` on submit or inventory | No API key configured |
 

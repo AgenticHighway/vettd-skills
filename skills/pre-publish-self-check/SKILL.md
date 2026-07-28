@@ -14,13 +14,6 @@ metadata:
 
 Scan your own skill directory before you push, open a PR, or share it, then fix and rescan until security and structure findings are clean. Treat vettd as a linter you run on your own work, not a gate someone else runs on you.
 
-## Preflight
-
-Run `vettd auth status --json`. If the binary is missing, `configured` is
-false, or `reachable` is false:
-
-⛔ **STOP** — invoke **setup-vettd**, then return here.
-
 ## When to Use
 
 | Situation | Action |
@@ -51,20 +44,19 @@ vettd scan folder ./skills/my-skill --stdout --deep
 
 ## Workflow
 
-1. Run the Preflight check.
-2. Scan: `vettd scan folder <path-to-your-skill> --stdout --deep`.
-3. Parse the JSON. Find your skill's entry in `skills[]` by matching the path portion of `id` (`<abs-path>:<12-char-content-hash>`) against your directory — do not match on `name` alone, since multiple scans can produce entries with the same name.
-4. Read `overallGrade` and `trustLevel` for that entry.
-5. Read every entry in `externalScannerResults[].findings[]`. Group by `category`: `security`, `structure`, `description`, `best-practices`, `scripts`, `evals`.
-6. Fix `security` and `structure` findings first, ordered by `severity` (`critical` > `high` > `medium` > `low` > `info`) — these two categories are what determine `overallGrade` and `trustLevel`.
-7. Rescan with the same command. Confirm each fixed `ruleId` no longer appears, and confirm no new `security`/`structure` finding was introduced by the fix.
-8. Repeat steps 6-7 until `security` and `structure` are free of `critical`/`high` findings and `overallGrade` reaches the level you're targeting (A or B, `Trusted` or `Conditional`).
-9. Only after that: address `description`, `best-practices`, `scripts`, and `evals` findings. These do not move `overallGrade`, but they're real quality signal — fix them because the skill is genuinely better, not to chase a letter.
-10. If a finding's cause or severity doesn't make sense for your skill:
+1. Scan: `vettd scan folder <path-to-your-skill> --stdout --deep`.
+2. Parse the JSON. Find your skill's entry in `skills[]` by matching the path portion of `id` (`<abs-path>:<12-char-content-hash>`) against your directory — do not match on `name` alone, since multiple scans can produce entries with the same name.
+3. Read `overallGrade` and `trustLevel` for that entry.
+4. Read every entry in `externalScannerResults[].findings[]`. Group by `category`: `security`, `structure`, `description`, `best-practices`, `scripts`, `evals`.
+5. Fix `security` and `structure` findings first, ordered by `severity` (`critical` > `high` > `medium` > `low` > `info`) — these two categories are what determine `overallGrade` and `trustLevel`.
+6. Rescan with the same command. Confirm each fixed `ruleId` no longer appears, and confirm no new `security`/`structure` finding was introduced by the fix.
+7. Repeat steps 5-6 until `security` and `structure` are free of `critical`/`high` findings and `overallGrade` reaches the level you're targeting (A or B, `Trusted` or `Conditional`).
+8. Only after that: address `description`, `best-practices`, `scripts`, and `evals` findings. These do not move `overallGrade`, but they're real quality signal — fix them because the skill is genuinely better, not to chase a letter.
+9. If a finding's cause or severity doesn't make sense for your skill:
 
 ⛔ **MANDATORY HAND-OFF** — invoke **triage-a-flagged-finding**.
 
-11. Stop when `security`/`structure` are clean at your target grade and you've made a deliberate call (fix or accept) on every remaining `description`/`best-practices`/`scripts`/`evals` finding.
+10. Stop when `security`/`structure` are clean at your target grade and you've made a deliberate call (fix or accept) on every remaining `description`/`best-practices`/`scripts`/`evals` finding.
 
 ## Grade Thresholds
 
