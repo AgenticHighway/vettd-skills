@@ -59,10 +59,33 @@ If this fails, install (Step 2). Otherwise go to Step 3.
 
 ### Step 2 — Install
 
-Prefer a release binary. Homebrew is currently unreliable for `vettd`.
+| Platform | Method |
+|---|---|
+| macOS | Homebrew (recommended) or release binary |
+| Linux | Release binary |
+| Windows | Release binary |
+
+**macOS — Homebrew:**
 
 ```bash
-# Linux x86_64 — adjust for your platform
+brew tap AgenticHighway/tap
+brew install vettd
+```
+
+**macOS — release binary** (swap `arm64`/`amd64` for your chip; macOS has no
+`sha256sum` by default, so use `shasum`):
+
+```bash
+curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/vettd-darwin-arm64.tar.gz
+curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/checksums.txt
+shasum -a 256 --check --ignore-missing checksums.txt
+tar xzf vettd-darwin-arm64.tar.gz
+install -m 0755 vettd ~/.local/bin/vettd
+```
+
+**Linux — release binary** (swap `arm64`/`amd64` for your architecture):
+
+```bash
 curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/vettd-linux-amd64.tar.gz
 curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/checksums.txt
 sha256sum --check --ignore-missing checksums.txt
@@ -70,8 +93,18 @@ tar xzf vettd-linux-amd64.tar.gz
 install -m 0755 vettd ~/.local/bin/vettd
 ```
 
-Platforms: `darwin-arm64`, `darwin-amd64`, `linux-arm64`, `linux-amd64`,
-`windows-amd64`.
+**Windows — release binary:**
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/AgenticHighway/vettd-cli/releases/latest/download/vettd-windows-amd64.exe -OutFile vettd.exe
+Invoke-WebRequest -Uri https://github.com/AgenticHighway/vettd-cli/releases/latest/download/checksums.txt -OutFile checksums.txt
+# Confirm the sha256 for vettd-windows-amd64.exe in checksums.txt matches:
+Get-FileHash vettd.exe -Algorithm SHA256
+Move-Item vettd.exe C:\Windows\System32\vettd.exe   # or any directory already on PATH
+```
+
+Valid platform/arch pairs: `darwin-arm64`, `darwin-amd64`, `linux-arm64`,
+`linux-amd64`, `windows-amd64`.
 
 Verify: `vettd --version`.
 
@@ -147,7 +180,7 @@ Report the resulting state, then return to the skill that handed off.
 
 | Mistake | Fix |
 |---|---|
-| Installing via `brew install vettd` and assuming it worked | The tap formula currently carries placeholder checksums and a stale version. Prefer the release binary. |
+| Assuming the Homebrew tap is broken | Fixed as of the `0.9.0` formula update — `brew tap AgenticHighway/tap && brew install vettd` now carries real checksums and tracks the current release. |
 | Treating `reachable: false` as fatal | Scanning is local-first and works offline. Only submission, `directory`, and `inventory` need the network. |
 | Passing `--api-key` on the command line | Visible in process listings and CI logs. Use the config file. |
 | Setting a public endpoint without `--allow-public-endpoint` | The command is rejected by design. |
