@@ -15,8 +15,6 @@ metadata:
 Stage a candidate skill, MCP server config, or agent config in an isolated
 location and scan it before it is written into any live skills, config, or
 agent directory. The artifact is never installed first and inspected later.
-Grade thresholds below follow Vettd's published methodology:
-https://vettd.agentichighway.ai/methodology
 
 ## When to Use
 

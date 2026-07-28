@@ -123,7 +123,7 @@ candidates tie.
 
 | Priority | Signal | Rule |
 |---|---|---|
-| 0 | `overallGrade: "pending"`, `scannerRunCount: 0`, or any `scannerRuns[].verdict: null` | **Reject outright**, don't just deprioritize. Per Vettd's methodology (https://vettd.agentichighway.ai/methodology), a scan with no findings is inconclusive, not a pass — an unscanned candidate is not a safer default than a scanned `B`. A `null` verdict means a scan ran but produced no usable result — treat it the same as unscanned. |
+| 0 | `overallGrade: "pending"`, `scannerRunCount: 0`, or any `scannerRuns[].verdict: null` | **Reject outright**, don't just deprioritize. A scan with no findings is inconclusive, not a pass — an unscanned candidate is not a safer default than a scanned `B`. A `null` verdict means a scan ran but produced no usable result — treat it the same as unscanned. |
 | 1 | `overallGrade` | Prefer `A` > `B` > `C`. Reject `F` unless the user explicitly overrides. |
 | 2 | `findings[]` at same grade | Read `category` + `severity`, don't just count. A `security`/`structure` finding outweighs a `best-practices` finding of the same severity. |
 | 3 | `scannerRunCount` / `scannerRuns[]` | More runs, and more scanners with matching `verdict`, means more scrutiny has already been applied. Prefer the more-scanned candidate when grades tie. |

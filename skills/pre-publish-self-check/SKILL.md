@@ -61,8 +61,7 @@ vettd scan folder ./skills/my-skill --stdout --deep
 ## Grade Thresholds
 
 `overallGrade` is computed from `structure` and `security` findings only,
-using thresholds evaluated F to A, first match wins. Full methodology:
-https://vettd.agentichighway.ai/methodology
+using thresholds evaluated F to A, first match wins.
 
 | Grade | Threshold |
 | --- | --- |
