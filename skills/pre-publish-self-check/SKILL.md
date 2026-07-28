@@ -97,7 +97,7 @@ one that returns many `info`-level findings showing real coverage.
 |---|---|---|---|
 | External URL referenced in SKILL.md | VTD-0088 | security | Inline the needed content instead of linking out, or pin to a specific commit/version so referenced content can't change after audit |
 | Missing SKILL.md | VTD-0095 (absence) | structure | Add the required SKILL.md with correct frontmatter |
-| Cloud instance metadata endpoint probed (e.g. `169.254.169.254`) | VTD-0029 | security | Remove the probe entirely — a skill has no legitimate reason to read cloud metadata endpoints; this is a known credential-theft vector and fires as `critical` |
+| Cloud instance metadata endpoint probed | VTD-0029 | security | Remove the probe entirely — a skill has no legitimate reason to read cloud metadata endpoints; this is a known credential-theft vector and fires as `critical` |
 | Shell + network + filesystem access declared together | dangerous-keyword-combo rules | security | Split into narrower steps, drop any tool declaration you don't actually invoke, or document in the skill why the combination is required |
 | Base64 decode-and-use patterns | encoding/obfuscation rules | security | Avoid decode-then-execute flows; if decoding is legitimate, keep the decoded content as inert data, never pipe it to a shell or interpreter |
 | Remote content piped straight to a shell (`curl \| sh`) | remote-exec rules | security | Replace with a pinned, checksum-verified install step; never pipe unreviewed remote output directly into execution |

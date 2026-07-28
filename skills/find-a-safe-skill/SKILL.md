@@ -130,7 +130,7 @@ candidates tie.
 
 | Priority | Signal | Rule |
 |---|---|---|
-| 0 | `overallGrade: "pending"` or `scannerRunCount: 0` | **Reject outright**, don't just deprioritize. Per Vettd's methodology (https://vettd.agentichighway.ai/methodology), a scan with no findings is inconclusive, not a pass — an unscanned candidate is not a safer default than a scanned `B`. |
+| 0 | `overallGrade: "pending"`, `scannerRunCount: 0`, or any `scannerRuns[].verdict: null` | **Reject outright**, don't just deprioritize. Per Vettd's methodology (https://vettd.agentichighway.ai/methodology), a scan with no findings is inconclusive, not a pass — an unscanned candidate is not a safer default than a scanned `B`. A `null` verdict means a scan ran but produced no usable result — treat it the same as unscanned. |
 | 1 | `overallGrade` | Prefer `A` > `B` > `C`. Reject `F` unless the user explicitly overrides. |
 | 2 | `findings[]` at same grade | Read `category` + `severity`, don't just count. A `security`/`structure` finding outweighs a `best-practices` finding of the same severity. |
 | 3 | `scannerRunCount` / `scannerRuns[]` | More runs, and more scanners with matching `verdict`, means more scrutiny has already been applied. Prefer the more-scanned candidate when grades tie. |
@@ -164,5 +164,5 @@ as a tiebreaker in place of an actual grade or finding comparison.
 | Treating `directory` like `scan` for JSON output | `scan --json` is broken and ignored; `directory --json` is not | Use `--json` on `directory` freely; use `--stdout` only for `scan` |
 | Getting `Connection refused` on any `directory` command | `directory` reuses the configured *ingest* endpoint. If that was pointed at a local test server (e.g. `http://localhost:3000`), every `directory` call fails — there is no `--endpoint` override | Invoke **setup-vettd** to reconfigure the endpoint back to the public directory, then retry |
 | Comparing candidates only by name/popularity | Not a safety signal | Compare by grade, then findings, then scanner coverage |
-| Treating an unscanned (`pending`/`scannerRunCount: 0`) candidate as a neutral or safe default | No findings recorded means not yet evaluated, not evaluated-and-clean | Reject outright per priority 0 above, or hand off to **vet-before-install** to scan it yourself |
+| Treating an unscanned (`pending`/`scannerRunCount: 0`/null `verdict`) candidate as a neutral or safe default | No findings recorded means not yet evaluated, not evaluated-and-clean | Reject outright per priority 0 above, or hand off to **vet-before-install** to scan it yourself |
 | Treating a displayed framework tag (OWASP/NIST/CMMC/ISO 42001/EU AI Act/CISA) as a safety certification | These are reference context, not automated audits | Weigh grade and findings; ignore framework tags as a decision signal |
