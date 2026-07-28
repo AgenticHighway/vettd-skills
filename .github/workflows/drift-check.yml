@@ -1,5 +1,8 @@
 name: drift-check
 
+permissions:
+  contents: read
+
 on:
   schedule:
     - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC — includes network checks
