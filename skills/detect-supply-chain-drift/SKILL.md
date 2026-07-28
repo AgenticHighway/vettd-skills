@@ -12,7 +12,7 @@ metadata:
 
 ## Overview
 
-Detects when a previously-clean artifact has changed since its last scan by diffing two `vettd` JSON reports. Surfaces new findings, resolved findings, and grade transitions that a single scan cannot show on its own.
+Detects when a previously-clean artifact has changed since its last scan by diffing two `vettd` JSON reports. Surfaces new findings, resolved findings, and grade transitions that a single scan cannot show on its own. Grade semantics below follow Vettd's published methodology: https://vettd.agentichighway.ai/methodology
 
 ## Preflight
 
@@ -112,6 +112,21 @@ For CHANGED artifacts the script further reports:
 - **NEW findings** — `ruleId`s present now that were absent in the baseline
 - **RESOLVED findings** — `ruleId`s present in the baseline that are gone now
 - **Grade transition** — e.g. `A → F`, when `overallGrade` differs between scans
+
+Grade thresholds (https://vettd.agentichighway.ai/methodology) are hard
+count cutoffs: `F` = 3+ highs or any critical; `C` = 3+ mediums or 1-2
+highs; `B` = 4+ lows or 1-2 mediums; `A` = fewer than 4 lows, nothing
+higher. A grade transition can happen from a single additional finding at
+a threshold boundary (a second medium becoming a third pushes `B` → `C`)
+just as easily as from a large change — treat every grade transition as
+significant regardless of how small the underlying finding count change
+looks.
+
+Any NEW `critical` finding is the highest-priority signal this skill can
+surface: critical means either adversarial intent was detected, or the
+new pattern requires no exploitability preconditions at all. A previously
+`A`/`B`-graded artifact that gains a single critical finding after an
+update has, by definition, just dropped to `F`.
 
 ⛔ **MANDATORY HAND-OFF** — invoke **triage-a-flagged-finding** for any NEW
 finding the diff surfaces. This skill detects and reports drift; it does

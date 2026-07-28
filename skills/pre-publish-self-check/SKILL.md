@@ -66,16 +66,44 @@ vettd scan folder ./skills/my-skill --stdout --deep
 
 11. Stop when `security`/`structure` are clean at your target grade and you've made a deliberate call (fix or accept) on every remaining `description`/`best-practices`/`scripts`/`evals` finding.
 
+## Grade Thresholds
+
+`overallGrade` is computed from `structure` and `security` findings only,
+using thresholds evaluated F to A, first match wins. Full methodology:
+https://vettd.agentichighway.ai/methodology
+
+| Grade | Threshold |
+| --- | --- |
+| F | 3+ highs, or any critical present |
+| C | 3+ mediums, or 1-2 highs present |
+| B | 4+ lows, or 1-2 mediums present |
+| A | Fewer than 4 lows, no mediums/highs/criticals |
+
+Use this to know your exact headroom. Two mediums is still a `B`; a third
+medium drops you to `C`. One high is `C` regardless of how clean
+everything else is; three highs is `F` even with zero criticals. A single
+`critical` finding is always `F` — critical means adversarial intent, or a
+pattern that fires unconditionally with no exploitability preconditions.
+There is no threshold to stay under; fix it or the grade cannot move.
+
+Reaching grade `A` means no `structure`/`security` findings of note in
+what was scanned — it is not a guarantee of safety in every environment,
+and a scan that returns very few findings overall is a weaker signal than
+one that returns many `info`-level findings showing real coverage.
+
 ## Fixing Common Findings
 
 | Cause | Example ruleId | Category | Fix |
 |---|---|---|---|
 | External URL referenced in SKILL.md | VTD-0088 | security | Inline the needed content instead of linking out, or pin to a specific commit/version so referenced content can't change after audit |
 | Missing SKILL.md | VTD-0095 (absence) | structure | Add the required SKILL.md with correct frontmatter |
+| Cloud instance metadata endpoint probed (e.g. `169.254.169.254`) | VTD-0029 | security | Remove the probe entirely — a skill has no legitimate reason to read cloud metadata endpoints; this is a known credential-theft vector and fires as `critical` |
 | Shell + network + filesystem access declared together | dangerous-keyword-combo rules | security | Split into narrower steps, drop any tool declaration you don't actually invoke, or document in the skill why the combination is required |
 | Base64 decode-and-use patterns | encoding/obfuscation rules | security | Avoid decode-then-execute flows; if decoding is legitimate, keep the decoded content as inert data, never pipe it to a shell or interpreter |
 | Remote content piped straight to a shell (`curl \| sh`) | remote-exec rules | security | Replace with a pinned, checksum-verified install step; never pipe unreviewed remote output directly into execution |
-| Credential-shaped strings in examples or scripts | secret-pattern rules | security | Remove real-looking keys/tokens from examples; use obvious placeholders (`YOUR_API_KEY_HERE`) and read real credentials from environment variables |
+| Credential-shaped strings, or scripts reading known credential paths (cloud provider creds, SSH private keys, container registry configs) | secret-pattern rules | security | Remove real-looking keys/tokens from examples; never read credential file paths from a skill script; read real credentials from environment variables instead |
+| Skill name suspiciously close to a known popular skill | typosquatting rules | security | Rename to something clearly distinct — name-proximity to a popular skill is a recognized supply-chain attack pattern, not a style nitpick |
+| A chain of otherwise-ordinary signals (credential access, then encoding, then outbound transmission; or remote fetch piped straight to a shell) | chained-signal rules | security | Vettd weighs sequences, not just individual signals — the difference between careless code and an intentional attack is often visible in the chain. Break the chain: don't decode-then-transmit, don't fetch-then-execute, in a single flow. |
 | Overly broad tool/permission declarations | broad-permission rules | structure/security | Declare the narrowest explicit tool list your skill actually uses instead of a wildcard or "all tools" |
 | Prose describing what your skill does *not* do (e.g. "no network access") | keyword-detection false positive | — | Vettd's keyword matching does not understand negation — mentioning "network access" or "shell execution" in prose, even to disclaim it, can add that permission to your skill's declared surface. Omit the negated mention rather than stating it. |
 

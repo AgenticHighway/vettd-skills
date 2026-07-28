@@ -106,6 +106,16 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
    `critical` or `high`, is flagged. Do not re-derive or soften severity —
    report it as-is.
 
+   Grade thresholds, per Vettd's methodology
+   (https://vettd.agentichighway.ai/methodology): `F` = 3+ highs or any
+   critical; `C` = 3+ mediums or 1-2 highs; `B` = 4+ lows or 1-2 mediums;
+   `A` = fewer than 4 lows, nothing higher. A single `critical` finding
+   forces `F`; a single `high` finding already forces at least `C` — an
+   `A`/`B` grade cannot structurally contain a `high` or `critical`
+   finding, so if you see `overallGrade: "high"`-severity findings on
+   something graded `A`/`B`, treat it as a scan/grade inconsistency
+   worth flagging, not a normal case.
+
 7. **Hand off flagged items.**
 
    ⛔ **MANDATORY HAND-OFF** — invoke **triage-a-flagged-finding**.
@@ -129,3 +139,4 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
 | Treating `overallGrade: C` as merely a quality nitpick | Grade derives only from `structure`/`security` findings — a `C` or `F` is a trust signal, not a style comment |
 | Concluding the audit without invoking triage on flagged items | Hand-off to **triage-a-flagged-finding** is mandatory for every flagged artifact, not optional follow-up |
 | Skipping flat-file artifacts (`.cursorrules`, `AGENTS.md`, `CLAUDE.md`) because they aren't under a scanned directory root | Explicitly include them in step 4 if unsure a sweep covered them |
+| Treating a location your scans never actually covered as "nothing found there" | Absence of findings from a gap in coverage is not the same as a clean result — per Vettd's methodology, no findings is inconclusive, not a pass; confirm every intended root was actually scanned (watch stderr depth-cap warnings) before reporting it clean |

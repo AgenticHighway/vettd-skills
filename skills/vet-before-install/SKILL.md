@@ -15,6 +15,8 @@ metadata:
 Stage a candidate skill, MCP server config, or agent config in an isolated
 location and scan it before it is written into any live skills, config, or
 agent directory. The artifact is never installed first and inspected later.
+Grade thresholds below follow Vettd's published methodology:
+https://vettd.agentichighway.ai/methodology
 
 ## Preflight
 
@@ -103,15 +105,36 @@ Additional contract notes for this skill:
 
 ## Decision Policy
 
+`overallGrade` is computed from `structure` and `security` findings only,
+using count-based thresholds evaluated F to A, first match wins:
+
+| Grade | Threshold |
+| --- | --- |
+| F | 3+ highs, or any critical present |
+| C | 3+ mediums, or 1-2 highs present |
+| B | 4+ lows, or 1-2 mediums present |
+| A | Fewer than 4 lows, no mediums/highs/criticals |
+
+Because "any critical present" already forces `F`, a `B` or `A` grade
+cannot structurally contain a critical finding. Checking severity directly
+(row 1 below) is a fast-path, not a defense against a case that can
+actually occur under normal grading.
+
+A `pending` grade, a missing `overallGrade`, or a directory entry with
+`scannerRunCount: 0` means the artifact has not actually been scanned. Per
+Vettd's methodology, a scan with no findings is inconclusive, not a pass —
+treat unscanned the same as untrusted: scan it yourself before proceeding.
+
 Evaluate in this order. The first matching row wins.
 
 | Condition | Action |
 | --- | --- |
-| Any finding with `severity: "critical"` (regardless of `overallGrade`) | **REFUSE.** Treat as F. Do not install. Report the finding(s) verbatim to the human. |
+| Any finding with `severity: "critical"` | **REFUSE.** Do not install. Report the finding(s) verbatim to the human. |
 | `overallGrade: "F"` | **REFUSE.** Do not install. Report why. |
 | `overallGrade: "C"` | **STOP.** Ask the human, presenting the specific findings, before proceeding either way. |
 | `overallGrade: "B"` | **Proceed with install**, but report the findings to the human afterward. |
 | `overallGrade: "A"` | **Proceed with install.** |
+| `overallGrade: "pending"`, missing, or no findings recorded at all | **Do not proceed.** Scan it yourself (this workflow) until a real grade is produced. |
 
 If any finding needs deeper investigation before you can apply this table
 (e.g. you don't understand why a rule fired):
@@ -130,9 +153,12 @@ If any finding needs deeper investigation before you can apply this table
   findings as if they change `overallGrade` — they don't; only `structure`
   and `security` findings drive the top-level grade, but a `critical`
   finding in *any* category still forces a REFUSE per the override rule.
-- Skipping the critical-severity override check because the grade looked
-  acceptable (e.g. a B or A can still carry a single critical finding).
+- Skipping the direct severity check because the grade looked acceptable —
+  it's a fast-path, and checking severity first catches a critical finding
+  before you've even parsed `overallGrade`.
 - Leaving the staging directory behind after the decision, especially after
   a REFUSE — always `rm -rf` it.
 - Auto-approving a grade-C artifact because "the findings look minor" —
   grade C always requires a human decision, no exceptions.
+- Treating a `pending` grade or an unscanned candidate as merely cautious
+  rather than blocking — "no findings yet" is not the same as "clean."

@@ -42,6 +42,13 @@ Each skill directory is self-contained. Copy one, some, or all.
 | **triage-a-flagged-finding** | handed a finding and deciding what to do about it |
 | **detect-supply-chain-drift** | checking whether a previously-clean artifact has changed |
 
+## Grading methodology
+
+Grade thresholds and finding-severity definitions used throughout these
+skills are not invented here — they follow Vettd's published methodology:
+https://vettd.agentichighway.ai/methodology. If that page changes, these
+skills need a matching update.
+
 ## CI
 
 `.github/workflows/drift-check.yml` installs the latest released `vettd`

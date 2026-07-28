@@ -130,6 +130,7 @@ candidates tie.
 
 | Priority | Signal | Rule |
 |---|---|---|
+| 0 | `overallGrade: "pending"` or `scannerRunCount: 0` | **Reject outright**, don't just deprioritize. Per Vettd's methodology (https://vettd.agentichighway.ai/methodology), a scan with no findings is inconclusive, not a pass — an unscanned candidate is not a safer default than a scanned `B`. |
 | 1 | `overallGrade` | Prefer `A` > `B` > `C`. Reject `F` unless the user explicitly overrides. |
 | 2 | `findings[]` at same grade | Read `category` + `severity`, don't just count. A `security`/`structure` finding outweighs a `best-practices` finding of the same severity. |
 | 3 | `scannerRunCount` / `scannerRuns[]` | More runs, and more scanners with matching `verdict`, means more scrutiny has already been applied. Prefer the more-scanned candidate when grades tie. |
@@ -137,11 +138,20 @@ candidates tie.
 | 5 | Quality tiebreakers only | `hasEvals`, `hasScripts`, description clarity, `fileCount` matching expected scope. Use these only to break ties — they do not change the grade and should never override a worse grade or worse findings. |
 
 **Key trap:** `overallGrade` is derived only from `structure` and
-`security` findings. Quality findings (`description`, `best-practices`,
-`scripts`, `evals`) are tracked but never change the letter grade. Two
-`A`-graded skills can differ significantly in real-world quality — always
-read `findings[]` for both candidates before picking, even when grades
-match.
+`security` findings, using thresholds evaluated F to A (F: 3+ highs or any
+critical; C: 3+ mediums or 1-2 highs; B: 4+ lows or 1-2 mediums; A: fewer
+than 4 lows, nothing higher). Quality findings (`description`,
+`best-practices`, `scripts`, `evals`) are tracked but never change the
+letter grade. Two `A`-graded skills can differ significantly in real-world
+quality — always read `findings[]` for both candidates before picking,
+even when grades match.
+
+**Framework labels are not certifications.** If a candidate displays a
+compliance/framework tag (OWASP, NIST 800-53, CMMC, ISO 42001, EU AI Act,
+CISA), treat it as reference context the submitter or reviewer is using,
+not an automated compliance guarantee — Vettd does not perform a formal
+audit against any of these frameworks today. Never use a framework label
+as a tiebreaker in place of an actual grade or finding comparison.
 
 ## Common Mistakes
 
@@ -154,3 +164,5 @@ match.
 | Treating `directory` like `scan` for JSON output | `scan --json` is broken and ignored; `directory --json` is not | Use `--json` on `directory` freely; use `--stdout` only for `scan` |
 | Getting `Connection refused` on any `directory` command | `directory` reuses the configured *ingest* endpoint. If that was pointed at a local test server (e.g. `http://localhost:3000`), every `directory` call fails — there is no `--endpoint` override | Invoke **setup-vettd** to reconfigure the endpoint back to the public directory, then retry |
 | Comparing candidates only by name/popularity | Not a safety signal | Compare by grade, then findings, then scanner coverage |
+| Treating an unscanned (`pending`/`scannerRunCount: 0`) candidate as a neutral or safe default | No findings recorded means not yet evaluated, not evaluated-and-clean | Reject outright per priority 0 above, or hand off to **vet-before-install** to scan it yourself |
+| Treating a displayed framework tag (OWASP/NIST/CMMC/ISO 42001/EU AI Act/CISA) as a safety certification | These are reference context, not automated audits | Weigh grade and findings; ignore framework tags as a decision signal |

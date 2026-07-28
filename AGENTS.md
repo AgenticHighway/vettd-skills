@@ -45,6 +45,15 @@ Add `## Decision Policy` if the skill makes a go/no-go call.
 `setup-vettd` is the only skill without a `## Preflight` block — it is what
 preflight hands off to.
 
+## Grading methodology is not invented here
+
+Grade thresholds (A/B/C/F) and finding severities (critical/high/medium/
+low/info) referenced by any skill must match
+https://vettd.agentichighway.ai/methodology exactly — do not restate them
+from memory or from a prior skill edit. If the published methodology
+changes, treat every skill referencing grades or severities as needing
+review, not just the one being edited.
+
 ## Documented commands must be registered
 
 Every CLI invocation a skill documents must have a line in

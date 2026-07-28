@@ -14,7 +14,8 @@ metadata:
 
 Given one or more findings from a vettd scan report, locate the underlying
 evidence and decide whether to remediate, remove, or accept the finding with
-a documented justification.
+a documented justification. Severity and grade definitions below follow
+Vettd's published methodology: https://vettd.agentichighway.ai/methodology
 
 ## Preflight
 
@@ -105,15 +106,35 @@ As of vettd 0.9.0:
 
 ## Decision Policy
 
+### Severity Semantics
+
+Severity is not an arbitrary ranking. Each level has a specific meaning:
+
+| Severity | Meaning |
+| --- | --- |
+| `critical` | Adversarial intent, or no exploitability preconditions required — fires unconditionally wherever the pattern appears. A finding tagged with malicious intent is always elevated to critical regardless of its base assignment. |
+| `high` | Serious harm, conditional on one additional factor: caller-controlled input reaching the operation, a specific execution environment, or a permissive configuration. Reflects negligent intent, not malicious intent. |
+| `medium` | A known weakness class with conditional exploitability, limited impact in isolation, or meaningful false-positive risk. Warrants review; not confirmed exploitable. |
+| `low` | Heuristic match only. High false-positive rate, no confirmed data flow to a vulnerability. |
+| `info` | Observation only. No direct harm path. Never counts toward `overallGrade`. |
+
+This distinction changes how you triage: a `high` finding usually means the
+author wrote something careless, not something hostile — the fix is a code
+change, not an incident. A `critical` finding means the pattern is
+adversarial by design, or it needs zero conditions to fire. Treat it as a
+stop-the-line event, not a backlog item.
+
+### Action Table
+
 Evaluate `severity` first, then `category`.
 
 | Severity | Category | Action |
 | --- | --- | --- |
-| `critical` | any | **Remediate or remove immediately.** Never accept-with-justification. |
-| `high` | `security` | **Remediate.** If not fixable in the source, **remove.** |
-| `medium` / `low` | `security` | **Remediate** if the fix is straightforward; otherwise **accept-with-justification** with explicit human sign-off. |
+| `critical` | any | **Remediate or remove immediately.** Never accept-with-justification. This finding alone already forces `overallGrade` to `F` by policy. |
+| `high` | `security` | **Remediate.** If not fixable in the source, **remove.** Three or more highs also forces `F`; even one high forces at least `C`. |
+| `medium` / `low` | `security` | **Remediate** if the fix is straightforward; otherwise **accept-with-justification** with explicit human sign-off. Three or more mediums forces `C`; four or more lows forces at least `B`. |
 | any | `structure` | **Remediate** — structure findings are typically a quick, mechanical fix (missing metadata, malformed manifest). |
-| any | `description` / `best-practices` / `scripts` / `evals` | Lower priority. **Accept-with-justification** is normally acceptable after a brief human review, since these categories affect internal score and `trustLevel` but do not drive `overallGrade` directly. |
+| any | `description` / `best-practices` / `scripts` / `evals` | Lower priority. **Accept-with-justification** is normally acceptable after a brief human review, since these categories affect internal score and `trustLevel` but never drive `overallGrade`. |
 
 If remediation was performed as part of an install decision that originally
 stopped in **vet-before-install**:
@@ -123,9 +144,15 @@ re-scan the corrected artifact before it is installed.
 
 ## Common Mistakes
 
-- Accepting a `critical` finding because the artifact's overall grade
-  looked acceptable — grade and severity are independent; critical always
-  wins.
+- Waiting to check `overallGrade` before reacting to a `critical` finding —
+  a single critical finding always forces the grade to `F` by policy, so a
+  `B` or `A` grade cannot structurally coexist with one. Act on severity
+  directly; don't wait to cross-check the grade.
+- Treating a scan that returned no findings, or an artifact with
+  `overallGrade: "pending"`, as equivalent to a clean result. Per Vettd's
+  methodology, the absence of findings is inconclusive, not a pass — an
+  unscanned or not-yet-analyzed artifact still needs a real scan before
+  any triage decision.
 - Deciding a remediation from the `label` field alone without reading
   `detail`, and then fixing the wrong thing.
 - Fixing the source but never re-scanning, so the same `ruleId` resurfaces
