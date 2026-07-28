@@ -1,0 +1,43 @@
+name: drift-check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC — includes network checks
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "skills/**"
+      - "ci/**"
+      - ".github/workflows/drift-check.yml"
+
+jobs:
+  verify-documented-commands:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install released vettd
+        run: |
+          set -euo pipefail
+          curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/vettd-linux-amd64.tar.gz
+          curl -fsSLO https://github.com/AgenticHighway/vettd-cli/releases/latest/download/checksums.txt
+          sha256sum --check --ignore-missing checksums.txt
+          tar xzf vettd-linux-amd64.tar.gz
+          install -m 0755 vettd /usr/local/bin/vettd
+          vettd --version
+
+      - name: Verify every documented command (local, no network dependency)
+        run: python3 ci/verify-commands.py ci/documented-commands.jsonl
+
+      - name: Verify network-dependent commands (scheduled runs only)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python3 ci/verify-commands.py ci/documented-commands.jsonl --include-network
+        continue-on-error: true # public directory reachability is out of this repo's control
+
+      - name: Verify diff-reports.py against its own fixtures
+        run: |
+          set -euo pipefail
+          vettd scan folder ci/fixtures/clean-skill --deep --out /tmp/a.json
+          vettd scan folder ci/fixtures/clean-skill --deep --out /tmp/b.json
+          # Identical scans of the same fixture must report no drift.
+          python3 skills/detect-supply-chain-drift/scripts/diff-reports.py /tmp/a.json /tmp/b.json
