@@ -1,0 +1,12 @@
+{"skill":"setup-vettd","cmd":"vettd --version","expect":"text","match":"^vettd [0-9]+\\.[0-9]+\\.[0-9]+"}
+{"skill":"setup-vettd","cmd":"vettd auth status --json","expect":"json","keys":["configured","endpoint","api_key_set","scanner_uuid","reachable"]}
+{"skill":"vet-before-install","cmd":"vettd scan folder ci/fixtures/clean-skill --deep --stdout","expect":"json","keys":["scanMeta","prompts","skills","mcpServers","agents","agenticApps"]}
+{"skill":"vet-before-install","cmd":"vettd scan folder ci/fixtures/clean-skill --deep --stdout","expect":"skill-grade","fixture":"clean-skill","grade":"A"}
+{"skill":"vet-before-install","cmd":"vettd scan folder ci/fixtures/dirty-skill --deep --stdout","expect":"skill-grade","fixture":"dirty-skill","grade":"F"}
+{"skill":"vet-before-install","cmd":"vettd scan folder ci/fixtures/dirty-skill --deep --stdout","expect":"has-severity","fixture":"dirty-skill","severity":"critical"}
+{"skill":"pre-publish-self-check","cmd":"vettd scan folder ci/fixtures/clean-skill --stdout --deep","expect":"json","keys":["skills"]}
+{"skill":"audit-my-agent-environment","cmd":"vettd scan default --stdout","expect":"json","keys":["scanMeta","skills"]}
+{"skill":"audit-my-agent-environment","cmd":"vettd scan file ci/fixtures/clean-skill/SKILL.md --stdout","expect":"json","keys":["scanMeta","skills"]}
+{"skill":"detect-supply-chain-drift","cmd":"vettd scan folder ci/fixtures/clean-skill --deep --out /tmp/vettd-skills-ci-baseline.json","expect":"file","path":"/tmp/vettd-skills-ci-baseline.json"}
+{"skill":"find-a-safe-skill","cmd":"vettd directory list --json","expect":"json","keys":["skills","total","page","totalPages"],"network":true}
+{"skill":"find-a-safe-skill","cmd":"vettd directory search test --json","expect":"json","keys":["skills","total"],"network":true}
