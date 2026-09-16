@@ -65,10 +65,11 @@ If this fails, install (Step 2). Otherwise go to Step 3.
 | Linux | Release binary |
 | Windows | Release binary |
 
-**macOS — Homebrew:**
+**macOS — Homebrew** (Homebrew 6.0+ requires trusting non-official taps):
 
 ```bash
 brew tap AgenticHighway/tap
+brew trust --formula AgenticHighway/tap/vettd
 brew install vettd
 ```
 
@@ -180,7 +181,7 @@ Report the resulting state, then return to the skill that handed off.
 
 | Mistake | Fix |
 |---|---|
-| Assuming the Homebrew tap is broken | Fixed as of the `0.9.0` formula update — `brew tap AgenticHighway/tap && brew install vettd` now carries real checksums and tracks the current release. |
+| Assuming the Homebrew tap is broken | On Homebrew 6.0+ a failed `brew install vettd` is usually the tap-trust check, not a broken tap. Run `brew tap AgenticHighway/tap`, then `brew trust --formula AgenticHighway/tap/vettd`, then retry. The formula itself carries real checksums and tracks the current release. |
 | Treating `reachable: false` as fatal | Scanning is local-first and works offline. Only submission, `directory`, and `inventory` need the network. |
 | Passing `--api-key` on the command line | Visible in process listings and CI logs. Use the config file. |
 | Setting a public endpoint without `--allow-public-endpoint` | The command is rejected by design. |
