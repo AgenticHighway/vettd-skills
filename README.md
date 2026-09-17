@@ -72,12 +72,25 @@ current version. If you only installed some, copy the specific
 | **triage-a-flagged-finding** | handed a finding and deciding what to do about it |
 | **detect-supply-chain-drift** | checking whether a previously-clean artifact has changed |
 
+Skills that read scan or directory data also cover vettd's non-finding
+signals — evidence/context that never becomes findings and never changes
+the grade (see the Grading methodology section).
+
 ## Grading methodology
 
-Grade thresholds and finding-severity definitions used throughout these
-skills are not invented here — they follow Vettd's published methodology:
-https://vettd.agentichighway.ai/methodology. If that page changes, these
-skills need a matching update.
+`overallGrade` is computed from every finding across all six categories
+(`structure`, `security`, `best-practices`, `description`, `scripts`,
+`evals`), with only `info` severity excluded, evaluated F → A: `F` = any
+`critical` or 3+ `high`; `C` = any `high` or 3+ `medium`; `B` = any
+`medium` or 4+ `low`; `A` = otherwise, including zero findings.
+`trustLevel` derives from the grade: `A` → Trusted, `B` → Conditional,
+`C`/`F` → Untrusted.
+
+Signals are a separate store: seven categories (safety, reliability,
+performance, cost, compatibility, Popularity, characteristics) with three
+verdict forms (`graded`, `measured`, `unjudged`). They are evidence/context,
+not findings, and never affect `overallGrade`. See `vettd directory
+signals <slug>` (vettd 0.10.0+) for a skill's published signal record.
 
 ## CI
 

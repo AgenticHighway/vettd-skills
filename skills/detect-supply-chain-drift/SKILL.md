@@ -4,8 +4,8 @@ description: "Use when a previously-scanned artifact needs to be checked for cha
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.1.0"
-  requires-vettd: ">=0.9.0"
+  version: "0.2.0"
+  requires-vettd: ">=0.10.0"
 ---
 
 # Detect Supply Chain Drift
@@ -106,16 +106,25 @@ For CHANGED artifacts the script further reports:
 - **RESOLVED findings** — `ruleId`s present in the baseline that are gone now
 - **Grade transition** — e.g. `A → F`, when `overallGrade` differs between scans
 
-Grade thresholds are hard count cutoffs: `F` = 3+ highs or any critical;
-`C` = 3+ mediums or 1-2 highs; `B` = 4+ lows or 1-2 mediums; `A` = fewer
-than 4 lows, nothing higher. A grade transition can happen from a single
-additional finding at a threshold boundary (a second medium becoming a
-third pushes `B` → `C`) just as easily as from a large change — treat
-every grade transition as significant regardless of how small the
+Grade thresholds are hard count cutoffs over every finding category —
+`structure`, `security`, `best-practices`, `description`, `scripts`,
+`evals`; only `info` severity is excluded: `F` = any `critical` or 3+
+`high`; `C` = any `high` or 3+ `medium`; `B` = any `medium` or 4+ `low`;
+`A` = otherwise, including zero findings. A grade transition can happen
+from a single additional finding at a threshold boundary (a second medium
+becoming a third pushes `B` → `C`) just as easily as from a large change —
+treat every grade transition as significant regardless of how small the
 underlying finding count change looks.
 
-Any NEW `critical` finding is the highest-priority signal this skill can
-surface: critical means either adversarial intent was detected, or the
+Scanner `signals[]` and `coverage[]` arrays travel on
+`externalScannerResults[]` alongside findings but are display-only and
+never affect the grade; `diff-reports.py` does not classify changes in
+them as drift. If a scanner release reclassifies findings to signals, it
+shows up in the diff through the grade transition and the NEW/RESOLVED
+finding lists, not through a signals diff.
+
+Any NEW `critical` finding is the highest-priority indicator this skill
+can surface: critical means either adversarial intent was detected, or the
 new pattern requires no exploitability preconditions at all. A previously
 `A`/`B`-graded artifact that gains a single critical finding after an
 update has, by definition, just dropped to `F`.

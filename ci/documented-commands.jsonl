@@ -10,3 +10,4 @@
 {"skill":"detect-supply-chain-drift","cmd":"vettd scan folder ci/fixtures/clean-skill --deep --out /tmp/vettd-skills-ci-baseline.json","expect":"file","path":"/tmp/vettd-skills-ci-baseline.json"}
 {"skill":"find-a-safe-skill","cmd":"vettd directory list --json","expect":"json","keys":["skills","total","page","totalPages"],"network":true}
 {"skill":"find-a-safe-skill","cmd":"vettd directory search test --json","expect":"json","keys":["skills","total"],"network":true}
+{"skill":"find-a-safe-skill","cmd":"vettd directory signals polars-bio --json","expect":"json","keys":["subjectType","subjectId","signals","categories"],"network":true}
