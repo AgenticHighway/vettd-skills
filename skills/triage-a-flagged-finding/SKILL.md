@@ -4,8 +4,8 @@ description: "Use when handed one or more specific scan findings and needing to 
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.1.0"
-  requires-vettd: ">=0.9.0"
+  version: "0.2.0"
+  requires-vettd: ">=0.10.0"
 ---
 
 # Triage a Flagged Finding
@@ -14,8 +14,8 @@ metadata:
 
 Given one or more findings from a vettd scan report, locate the underlying
 evidence and decide whether to remediate, remove, or accept the finding with
-a documented justification. Severity and grade definitions below follow
-Vettd's published methodology: https://vettd.agentichighway.ai/methodology
+a documented justification. Severity and grade definitions used below are
+stated in this skill's Decision Policy.
 
 ## When to Use
 
@@ -127,7 +127,7 @@ Evaluate `severity` first, then `category`.
 | `high` | `security` | **Remediate.** If not fixable in the source, **remove.** Three or more highs also forces `F`; even one high forces at least `C`. |
 | `medium` / `low` | `security` | **Remediate** if the fix is straightforward; otherwise **accept-with-justification** with explicit human sign-off. Three or more mediums forces `C`; four or more lows forces at least `B`. |
 | any | `structure` | **Remediate** — structure findings are typically a quick, mechanical fix (missing metadata, malformed manifest). |
-| any | `description` / `best-practices` / `scripts` / `evals` | Lower priority. **Accept-with-justification** is normally acceptable after a brief human review, since these categories affect internal score and `trustLevel` but never drive `overallGrade`. |
+| any | `description` / `best-practices` / `scripts` / `evals` | Still counts toward `overallGrade` — no category is grade-neutral (only `info` severity is excluded). Remediation urgency can be lower than for `security`/`structure`, but an accepted finding stays in the count; document the justification. |
 
 If remediation was performed as part of an install decision that originally
 stopped in **vet-before-install**:
@@ -135,17 +135,28 @@ stopped in **vet-before-install**:
 ⛔ **MANDATORY HAND-OFF** — invoke **vet-before-install** to re-stage and
 re-scan the corrected artifact before it is installed.
 
+### Signals are not triaged
+
+An entry's `externalScannerResults[]` may also carry `signals[]` and
+`coverage[]` arrays. Signals span seven categories (safety, reliability,
+performance, cost, compatibility, Popularity, characteristics) with three
+verdict forms (`graded`, `measured`, `unjudged`), but they are
+evidence/context, not findings: they never affect `overallGrade` and they
+have no remediate/remove/accept path. Only `AssetFinding` rows —
+`externalScannerResults[].findings[]`, grouped into the six finding
+categories — are triaged by this skill.
+
 ## Common Mistakes
 
 - Waiting to check `overallGrade` before reacting to a `critical` finding —
   a single critical finding always forces the grade to `F` by policy, so a
   `B` or `A` grade cannot structurally coexist with one. Act on severity
   directly; don't wait to cross-check the grade.
-- Treating a scan that returned no findings, or an artifact with
-  `overallGrade: "pending"`, as equivalent to a clean result. Per Vettd's
-  methodology, the absence of findings is inconclusive, not a pass — an
-  unscanned or not-yet-analyzed artifact still needs a real scan before
-  any triage decision.
+- Treating an artifact with `overallGrade: "pending"` (never scanned) as
+  equivalent to a clean result — an unscanned or not-yet-analyzed artifact
+  still needs a real scan before any triage decision. A completed scan
+  that returned zero findings is a real result (grade `A`); there is
+  simply nothing in it to triage.
 - Deciding a remediation from the `label` field alone without reading
   `detail`, and then fixing the wrong thing.
 - Fixing the source but never re-scanning, so the same `ruleId` resurfaces
@@ -158,3 +169,6 @@ re-scan the corrected artifact before it is installed.
   non-critical findings with a recorded reason.
 - Removing the artifact but not re-scanning the parent directory/config to
   confirm the entry is actually gone (stale references, duplicate copies).
+- Triaging a `signals[]` or `coverage[]` row like a finding — signals are
+  evidence/context, never findings; they aren't remediated, removed, or
+  accepted. Only `externalScannerResults[].findings[]` rows are triaged.

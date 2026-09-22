@@ -4,8 +4,8 @@ description: "Use when an agent needs to inventory and audit its own runtime env
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.1.0"
-  requires-vettd: ">=0.9.0"
+  version: "0.2.0"
+  requires-vettd: ">=0.10.0"
 ---
 
 # Audit My Agent Environment
@@ -95,17 +95,18 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
 5. **Flag anything risky.** Anything with `overallGrade` of `C` or `F`, or
    any `externalScannerResults[].findings[]` entry with `severity` of
    `critical` or `high`, is flagged. Do not re-derive or soften severity —
-   report it as-is.
+   report it as-is. `signals[]`/`coverage[]` arrays on the same entries are
+   display-only: never flag them, and they never change the grade.
 
-   Grade thresholds, per Vettd's methodology
-   (https://vettd.agentichighway.ai/methodology): `F` = 3+ highs or any
-   critical; `C` = 3+ mediums or 1-2 highs; `B` = 4+ lows or 1-2 mediums;
-   `A` = fewer than 4 lows, nothing higher. A single `critical` finding
-   forces `F`; a single `high` finding already forces at least `C` — an
-   `A`/`B` grade cannot structurally contain a `high` or `critical`
-   finding, so if you see `overallGrade: "high"`-severity findings on
-   something graded `A`/`B`, treat it as a scan/grade inconsistency
-   worth flagging, not a normal case.
+   `overallGrade` counts every finding across all categories — `structure`,
+   `security`, `best-practices`, `description`, `scripts`, `evals` — with
+   only `info` severity excluded: `F` = any `critical` or 3+ `high`; `C` =
+   any `high` or 3+ `medium`; `B` = any `medium` or 4+ `low`; `A` =
+   otherwise, including zero findings. A single `critical` finding forces
+   `F`; a single `high` finding already forces at least `C` — an `A`/`B`
+   grade cannot structurally contain a `high` or `critical` finding in any
+   category, so if you see such severity on something graded `A`/`B`, treat
+   it as a scan/grade inconsistency worth flagging, not a normal case.
 
 6. **Hand off flagged items.**
 
@@ -127,7 +128,7 @@ trust the JSON `mcpServers` field alone for MCP inventory — explicitly
 | Ignoring the depth-cap warning on stderr | Treat it as a signal to rerun the affected root with `scan folder <path> --stdout --deep` |
 | Branching on the scan process exit code to detect problems | Exit code is always 0 regardless of findings — read the JSON, not the exit status |
 | Parsing the human-readable scan output for automation | Human output carries ANSI escapes even off a TTY — always use `--stdout` and parse JSON |
-| Treating `overallGrade: C` as merely a quality nitpick | Grade derives only from `structure`/`security` findings — a `C` or `F` is a trust signal, not a style comment |
+| Treating `overallGrade: C` as merely a quality nitpick | Grade counts findings from every category — a `C` or `F` is a trust signal, not a style comment |
 | Concluding the audit without invoking triage on flagged items | Hand-off to **triage-a-flagged-finding** is mandatory for every flagged artifact, not optional follow-up |
 | Skipping flat-file artifacts (`.cursorrules`, `AGENTS.md`, `CLAUDE.md`) because they aren't under a scanned directory root | Explicitly include them in step 4 if unsure a sweep covered them |
-| Treating a location your scans never actually covered as "nothing found there" | Absence of findings from a gap in coverage is not the same as a clean result — per Vettd's methodology, no findings is inconclusive, not a pass; confirm every intended root was actually scanned (watch stderr depth-cap warnings) before reporting it clean |
+| Treating a location your scans never actually covered as "nothing found there" | A coverage gap is not a clean result — a completed scan is evidence, an unscanned root proves nothing | Confirm every intended root was actually scanned (watch stderr depth-cap warnings) before reporting it clean |

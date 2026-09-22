@@ -4,8 +4,8 @@ description: "Use when about to install, adopt, or wire in a skill, MCP server, 
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.1.0"
-  requires-vettd: ">=0.9.0"
+  version: "0.2.0"
+  requires-vettd: ">=0.10.0"
 ---
 
 # Vet a Skill, MCP Server, or Agent Before Installing It
@@ -96,25 +96,38 @@ Additional contract notes for this skill:
 
 ## Decision Policy
 
-`overallGrade` is computed from `structure` and `security` findings only,
-using count-based thresholds evaluated F to A, first match wins:
+`overallGrade` is computed from **all** findings across every category
+(`structure`, `security`, `best-practices`, `description`, `scripts`,
+`evals`) — only `info` severity is excluded. Thresholds are evaluated F to
+A, first match wins:
 
 | Grade | Threshold |
 | --- | --- |
-| F | 3+ highs, or any critical present |
-| C | 3+ mediums, or 1-2 highs present |
-| B | 4+ lows, or 1-2 mediums present |
-| A | Fewer than 4 lows, no mediums/highs/criticals |
+| F | any `critical`, or 3+ `high` |
+| C | any `high`, or 3+ `medium` |
+| B | any `medium`, or 4+ `low` |
+| A | otherwise, including zero findings |
 
 Because "any critical present" already forces `F`, a `B` or `A` grade
 cannot structurally contain a critical finding. Checking severity directly
 (row 1 below) is a fast-path, not a defense against a case that can
 actually occur under normal grading.
 
+### Signals are not findings
+
+Scan output may also carry non-finding `signals[]` and `coverage[]` arrays
+on the same `externalScannerResults[]` entry. Signals span seven categories
+(safety, reliability, performance, cost, compatibility, Popularity,
+characteristics) and come in three verdict forms (`graded`, `measured`,
+`unjudged`), but they are evidence/context, not findings: they never
+affect `overallGrade`, they are not triaged, and they cannot trigger a
+REFUSE on their own.
+
 A `pending` grade, a missing `overallGrade`, or a directory entry with
-`scannerRunCount: 0` means the artifact has not actually been scanned. Per
-Vettd's methodology, a scan with no findings is inconclusive, not a pass —
+`scannerRunCount: 0` means the artifact has not actually been scanned —
 treat unscanned the same as untrusted: scan it yourself before proceeding.
+A completed scan that returned zero findings is a real result and grades
+`A`; that is not the same as "never scanned".
 
 Evaluate in this order. The first matching row wins.
 
@@ -125,7 +138,7 @@ Evaluate in this order. The first matching row wins.
 | `overallGrade: "C"` | **STOP.** Ask the human, presenting the specific findings, before proceeding either way. |
 | `overallGrade: "B"` | **Proceed with install**, but report the findings to the human afterward. |
 | `overallGrade: "A"` | **Proceed with install.** |
-| `overallGrade: "pending"`, missing, or no findings recorded at all | **Do not proceed.** Scan it yourself (this workflow) until a real grade is produced. |
+| `overallGrade: "pending"`, missing, or the artifact was never scanned | **Do not proceed.** Scan it yourself (this workflow) until a real grade is produced. |
 
 If any finding needs deeper investigation before you can apply this table
 (e.g. you don't understand why a rule fired):
@@ -140,10 +153,10 @@ If any finding needs deeper investigation before you can apply this table
   what gets scanned.
 - Branching on the scan command's exit code instead of reading
   `overallGrade` and `findings[].severity` from the JSON.
-- Treating `description`/`best-practices`/`scripts`/`evals` category
-  findings as if they change `overallGrade` — they don't; only `structure`
-  and `security` findings drive the top-level grade, but a `critical`
-  finding in *any* category still forces a REFUSE per the override rule.
+- Treating `description`/`best-practices`/`scripts`/`evals` findings as
+  grade-neutral — every category feeds `overallGrade` (only `info` is
+  excluded), so a `critical`/`high` in any category forces `F`/`C` and the
+  corresponding REFUSE/STOP.
 - Skipping the direct severity check because the grade looked acceptable —
   it's a fast-path, and checking severity first catches a critical finding
   before you've even parsed `overallGrade`.
@@ -152,4 +165,4 @@ If any finding needs deeper investigation before you can apply this table
 - Auto-approving a grade-C artifact because "the findings look minor" —
   grade C always requires a human decision, no exceptions.
 - Treating a `pending` grade or an unscanned candidate as merely cautious
-  rather than blocking — "no findings yet" is not the same as "clean."
+  rather than blocking — "not scanned yet" is not the same as "clean."
