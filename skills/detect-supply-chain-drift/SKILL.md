@@ -119,9 +119,11 @@ underlying finding count change looks.
 Scanner `signals[]` and `coverage[]` arrays travel on
 `externalScannerResults[]` alongside findings but are display-only and
 never affect the grade; `diff-reports.py` does not classify changes in
-them as drift. If a scanner release reclassifies findings to signals, it
-shows up in the diff through the grade transition and the NEW/RESOLVED
-finding lists, not through a signals diff.
+them as drift. The diff compares artifact content: an artifact is only
+compared when its content hash differs, so a scanner upgrade that
+reclassifies findings into signals may not surface in the diff at all.
+Even when content does change, a grade transition is not guaranteed — it
+is only reported when `overallGrade` differs between the two scans.
 
 Any NEW `critical` finding is the highest-priority indicator this skill
 can surface: critical means either adversarial intent was detected, or the

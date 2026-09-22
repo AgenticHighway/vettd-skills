@@ -114,7 +114,7 @@ row; only `findings[]` rows count toward the grade.
 
 | Mistake | Why it's wrong |
 |---|---|
-| Treating a `description`/`best-practices`/`scripts`/`evals` finding as blocking publication | Every category feeds `overallGrade` (only `info` is excluded), and `trustLevel` follows the grade — a quality finding can be the reason you're not at `A` |
+| Treating a `description`/`best-practices`/`scripts`/`evals` finding as grade-neutral | Every category feeds `overallGrade` (only `info` is excluded), and `trustLevel` follows the grade — a quality finding can be the reason you're not at `A` |
 | Treating a `signals[]` row as a finding to fix | Signals are evidence/context, never findings — they don't affect `overallGrade` and aren't fixed like findings |
 | Assuming a fix worked without rescanning | The only proof a finding is resolved is its absence from the next `--stdout --deep` scan |
 | Reading the human-readable terminal output instead of `--stdout` JSON | ANSI escapes are emitted regardless of TTY state and will corrupt any parsing |
