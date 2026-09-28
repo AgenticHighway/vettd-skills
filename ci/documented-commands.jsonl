@@ -12,3 +12,9 @@
 {"skill":"find-a-safe-skill","cmd":"vettd directory search test --json","expect":"json","keys":["skills","total"],"network":true}
 {"skill":"find-a-safe-skill","cmd":"vettd directory signals polars-bio --json","expect":"json","keys":["subjectType","subjectId","signals","categories"],"network":true}
 {"skill":"find-a-safe-skill","cmd":"vettd directory signals polars-bio","expect":"text","match":"polars-bio","network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS https://vettd.agentichighway.ai/api/directory?limit=1","expect":"json","keys":["skills","total","page","totalPages"],"network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS https://vettd.agentichighway.ai/api/directory?search=test&grade=A&sort=newest&limit=1","expect":"json","keys":["skills","total","page","totalPages"],"network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS https://vettd.agentichighway.ai/api/directory/polars-bio","expect":"json","keys":["slug","publicId","overallGrade","verdictRationale","findings","scannerRuns","freshness","sourceUrl"],"network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS -G https://vettd.agentichighway.ai/api/skills/lookup --data-urlencode url=https://github.com/k-dense-ai/scientific-agent-skills/tree/main/skills/polars-bio","expect":"json","keys":["status","name","summary","grade","findingCounts","assessedAt","detailUrl"],"network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS https://vettd.agentichighway.ai/api/directory/random","expect":"json","keys":["skill"],"network":true}
+{"skill":"browse-directory-api","cmd":"curl -fsS https://vettd.agentichighway.ai/api/directory/stats","expect":"json","keys":["totalSkills"],"network":true}

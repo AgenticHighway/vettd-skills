@@ -181,3 +181,4 @@ as a tiebreaker in place of an actual grade or finding comparison.
 | Comparing candidates only by name/popularity | Not a safety signal | Compare by grade, then findings, then scanner coverage |
 | Treating an unscanned (`pending`/`scannerRunCount: 0`/null `verdict`) candidate as a neutral or safe default | No scan result recorded means not yet evaluated, not evaluated-and-clean | Reject outright per priority 0 above, or hand off to **vet-before-install** to scan it yourself |
 | Treating a displayed framework tag (OWASP/NIST/CMMC/ISO 42001/EU AI Act/CISA) as a safety certification | These are reference context, not automated audits | Weigh grade and findings; ignore framework tags as a decision signal |
+| Running `vettd directory` commands when the binary is not installed and the user only wants to browse or download | The CLI is not needed for read-only directory access | Use **browse-directory-api** (plain HTTPS), or **setup-vettd** if the user wants the CLI |

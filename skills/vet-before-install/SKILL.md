@@ -166,3 +166,8 @@ If any finding needs deeper investigation before you can apply this table
   grade C always requires a human decision, no exceptions.
 - Treating a `pending` grade or an unscanned candidate as merely cautious
   rather than blocking — "not scanned yet" is not the same as "clean."
+- Reaching for this skill's scan when `vettd` is not installed and only a
+  directory verdict on a public GitHub skill is needed — **browse-directory-api**
+  returns the published grade and findings over HTTPS. That is a lookup of a
+  past scan, not a scan of the files you hold, so it does not replace this
+  skill before installing.
