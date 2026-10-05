@@ -9,15 +9,28 @@ before publishing.
 
 ## Requirements
 
-The `vettd` binary must be on PATH. Every skill declares its minimum version
-in `metadata.requires-vettd`. Start with **setup-vettd** — every other skill
-hands off to it when the environment isn't ready.
+Seven skills require the `vettd` binary on PATH and declare their minimum
+version in `metadata.requires-vettd`. Start with **setup-vettd** when an
+environment isn't ready. **browse-directory-api** is the zero-install path for
+searching the public directory over HTTPS; it needs neither the binary nor an
+API key.
 
 ## Install
 
 **Fast Track (any agent)** — simply ask any agent to install vettd-skills:
 
 > Please install skills from github.com/AgenticHighway/vettd-skills
+
+**Codex** — add the marketplace and install the plugin:
+
+```bash
+codex plugin marketplace add AgenticHighway/vettd-skills --ref main
+codex plugin add vettd-skills@agentichighway
+```
+
+Start a new Codex session after installing. This installs every skill in this
+repository. Only the CLI-backed skills require the `vettd` binary;
+**browse-directory-api** works with HTTPS alone.
 
 **Claude Code** — copy the skill directories you want into `~/.claude/skills/`:
 
