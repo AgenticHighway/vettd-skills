@@ -15,7 +15,8 @@ They do not overlap.
 | **vettd** | the 7 CLI skills (`setup-vettd`, `vet-before-install`, `audit-my-agent-environment`, `pre-publish-self-check`, `find-a-safe-skill`, `triage-a-flagged-finding`, `detect-supply-chain-drift`) | The `vettd` binary on PATH. `setup-vettd` installs it. |
 
 Install `vettd-directory` alone to search, inspect, and download. Install both
-for the full workflow.
+for the full workflow. Codex users get the same skills as one `vettd-skills`
+plugin (see Install).
 
 The `vettd` plugin does not bundle the binary. Install the CLI separately
 (Homebrew or a signed GitHub release, as `setup-vettd` describes).
@@ -31,6 +32,7 @@ Find your harness below. Each section covers install and update.
 | Harness | Method | Skills |
 |---|---|---|
 | Claude Code | Plugin marketplace | `vettd-directory`, `vettd` |
+| Codex | Plugin marketplace | all skills, as one plugin |
 | opencode | Copy into skills directory | all skills |
 | Any other agent that reads `SKILL.md` | Copy into that agent's skills directory | all skills |
 
@@ -60,6 +62,22 @@ claude plugin update vettd@agentichighway
 Updates arrive only when the plugin version in `.claude-plugin/marketplace.json`
 is bumped. Auto-update is off by default for third-party marketplaces, so run
 the update commands above to pick up new versions.
+
+### Codex
+
+Codex installs all eight skills as one plugin, `vettd-skills`. Start a new
+Codex session after installing.
+
+Install:
+
+```bash
+codex plugin marketplace add AgenticHighway/vettd-skills --ref main
+codex plugin add vettd-skills@agentichighway
+```
+
+`browse-directory-api` needs neither the CLI nor an API key. The other seven
+skills need the `vettd` binary. Follow the bundled `setup-vettd` skill to
+install it.
 
 ### opencode
 
