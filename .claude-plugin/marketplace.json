@@ -10,7 +10,7 @@
       "name": "vettd-directory",
       "source": "./",
       "strict": false,
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Search the public vettd directory, check a skill's grade and findings, and download skills over plain HTTPS. No CLI install, no API key.",
       "homepage": "https://vettd.agentichighway.ai",
       "repository": "https://github.com/AgenticHighway/vettd-skills",
