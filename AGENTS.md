@@ -25,6 +25,12 @@ plain HTTPS in `vettd-directory` — never let the latter depend on a binary, an
 API key, `bin/` files, or hooks. Bump a plugin's `version` when its skills change,
 or installed users will not receive the update.
 
+Codex ships the same flat `skills/` tree as one portable plugin. Its root
+`plugin.json` is listed by `.agents/plugins/marketplace.json`. Bump its version
+when any bundled skill changes. Do not use symlinks or a second copy of a skill:
+Codex packages must remain portable across marketplace cache and filesystem
+implementations.
+
 ## Frontmatter
 
 ```yaml
