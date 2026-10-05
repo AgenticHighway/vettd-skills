@@ -1,0 +1,32 @@
+name: plugin-validate
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - ".claude-plugin/**"
+      - "skills/**"
+      - "ci/verify-marketplace.py"
+      - ".github/workflows/plugin-validate.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".claude-plugin/**"
+      - "skills/**"
+
+jobs:
+  validate-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Every skill is listed in exactly one plugin
+        run: python3 ci/verify-marketplace.py
+
+      - name: Install Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@2.1.284
+
+      - name: Validate marketplace and plugins
+        run: claude plugin validate --strict .

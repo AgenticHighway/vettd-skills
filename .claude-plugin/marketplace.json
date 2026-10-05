@@ -1,0 +1,42 @@
+{
+  "name": "agentichighway",
+  "description": "Agent-facing skills for vetting AI skills, MCP servers, and agent configs with vettd",
+  "owner": {
+    "name": "Agentic Highway",
+    "url": "https://agentichighway.ai"
+  },
+  "plugins": [
+    {
+      "name": "vettd-directory",
+      "source": "./",
+      "strict": false,
+      "version": "0.1.0",
+      "description": "Search the public vettd directory, check a skill's grade and findings, and download skills over plain HTTPS. No CLI install, no API key.",
+      "homepage": "https://vettd.agentichighway.ai",
+      "repository": "https://github.com/AgenticHighway/vettd-skills",
+      "license": "MIT",
+      "keywords": ["vettd", "skills", "directory", "security", "supply-chain"],
+      "skills": ["./skills/browse-directory-api"]
+    },
+    {
+      "name": "vettd",
+      "source": "./",
+      "strict": false,
+      "version": "0.1.0",
+      "description": "Vet skills, MCP servers, and agent configs before installing them, and audit your own agent environment, using the vettd CLI. Requires the vettd binary (setup-vettd walks through install).",
+      "homepage": "https://vettd.agentichighway.ai",
+      "repository": "https://github.com/AgenticHighway/vettd-skills",
+      "license": "MIT",
+      "keywords": ["vettd", "skills", "mcp", "security", "audit", "supply-chain"],
+      "skills": [
+        "./skills/setup-vettd",
+        "./skills/vet-before-install",
+        "./skills/audit-my-agent-environment",
+        "./skills/pre-publish-self-check",
+        "./skills/find-a-safe-skill",
+        "./skills/triage-a-flagged-finding",
+        "./skills/detect-supply-chain-drift"
+      ]
+    }
+  ]
+}

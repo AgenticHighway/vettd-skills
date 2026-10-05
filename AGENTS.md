@@ -14,6 +14,17 @@ A skill directory must be copyable on its own. Never reference another
 skill's files by relative path (`../other-skill/thing.md`). Refer to other
 skills **by name only**, in bold: `invoke **triage-a-flagged-finding**`.
 
+## Plugin manifest
+
+Skills also ship as Claude Code plugins, listed in `.claude-plugin/marketplace.json`:
+`vettd-directory` (HTTP-only, no binary) and `vettd` (needs the CLI). Every
+`skills/<name>/` must be listed in exactly one plugin's `skills` array;
+`ci/verify-marketplace.py` and `claude plugin validate --strict .` enforce this.
+Put a skill that needs the `vettd` binary in `vettd`, and one that works over
+plain HTTPS in `vettd-directory` — never let the latter depend on a binary, an
+API key, `bin/` files, or hooks. Bump a plugin's `version` when its skills change,
+or installed users will not receive the update.
+
 ## Frontmatter
 
 ```yaml
