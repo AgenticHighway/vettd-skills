@@ -33,6 +33,7 @@ Find your harness below. Each section covers install and update.
 |---|---|---|
 | Claude Code | Plugin marketplace | `vettd-directory`, `vettd` |
 | Codex | Plugin marketplace | all skills, as one plugin |
+| OpenHands | Plugin (`--plugin`) | all skills, as one plugin |
 | opencode | Copy into skills directory | all skills |
 | Any other agent that reads `SKILL.md` | Copy into that agent's skills directory | all skills |
 
@@ -74,6 +75,30 @@ Install:
 codex plugin marketplace add AgenticHighway/vettd-skills --ref main
 codex plugin add vettd-skills@agentichighway
 ```
+
+`browse-directory-api` needs neither the CLI nor an API key. The other seven
+skills need the `vettd` binary. Follow the bundled `setup-vettd` skill to
+install it.
+
+### OpenHands
+
+OpenHands installs all eight skills as one plugin, `vettd-skills`.
+
+Install (run in a terminal):
+
+```bash
+openhands --plugin github:AgenticHighway/vettd-skills
+```
+
+Or add it to `~/.openhands/config.toml`:
+
+```toml
+[plugins]
+sources = ["github:AgenticHighway/vettd-skills"]
+```
+
+Update: re-run the install command. To pin a version, append a tag:
+`github:AgenticHighway/vettd-skills#v0.1.0`.
 
 `browse-directory-api` needs neither the CLI nor an API key. The other seven
 skills need the `vettd` binary. Follow the bundled `setup-vettd` skill to
