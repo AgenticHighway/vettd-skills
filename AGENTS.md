@@ -31,6 +31,10 @@ when any bundled skill changes. Do not use symlinks or a second copy of a skill:
 Codex packages must remain portable across marketplace cache and filesystem
 implementations.
 
+OpenHands reads the same `skills/` tree through `.plugin/plugin.json` at the
+repo root. Bump its `version` with the Codex `plugin.json` whenever a bundled
+skill changes. Keep the two versions equal.
+
 ## Frontmatter
 
 ```yaml
