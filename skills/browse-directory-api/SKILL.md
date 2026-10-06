@@ -4,7 +4,7 @@ description: "Use when an agent has only HTTPS access (no vettd binary) and need
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Browse the Vettd Directory over HTTP
@@ -36,9 +36,9 @@ Base URL: `https://vettd.agentichighway.ai`. Every endpoint below is public and 
 
 | Purpose | Request | Notes |
 |---|---|---|
-| Search / list | `GET /api/directory?search=<q>&grade=<A\|B\|C\|F>&sort=<newest\|verdict\|alpha\|downloads>&page=<n>&limit=<1-100>` | All params optional. `limit` above 100 returns `400`. Response: `{skills[], total, page, totalPages}` |
-| Skill detail | `GET /api/directory/<publicId-or-slug>` | Adds `findings[]`, `scannerRuns[]`, `verdictRationale`, `freshness`, `license`, `sourceUrl`. Unknown id: `404 {"error":"Skill not found"}` |
-| Verdict by GitHub URL | `GET /api/skills/lookup?url=<urlencoded github url>` | Returns `{status, severity, name, summary, grade, findingCounts, assessedAt, detailUrl}`. Unassessed skill: `{"status":"unknown", ...}` |
+| Search / list | `GET /api/directory?search=<q>&grade=<A\|B\|C\|F>&sort=<newest\|stars\|downloads\|verdict\|alpha>&page=<1-1000>&limit=<1-100>` | All params optional. `limit` above 100 or below 1 returns `400`. Response: `{skills[], total, page, totalPages}` |
+| Skill detail | `GET /api/directory/<publicId-or-slug>` | Adds `findings[]`, `scannerRuns[]`, `verdictRationale`, `freshness`, `license`, `sourceUrl`. Unknown id: `404` with `Content-Type: application/problem+json` and body `{type, title: "Skill not found", status, error, details, documentation}` |
+| Verdict by GitHub URL | `GET /api/skills/lookup?url=<urlencoded github url>` | Assessed: `{status, severity, name, summary, grade, findingCounts, assessedAt, detailUrl}` — `status` is the grade letter (`A`/`B`/`C`/`F`), not a pass/fail flag, and `severity` is derived from it. Unassessed (HTTP 200): `{status: "unknown", url, message, next: {method: "POST", href: "/api/skills/github", requires: "ah_ API key + linked GitHub OAuth token"}, documentation}` |
 | Random skill | `GET /api/directory/random` | `{skill}` |
 | Directory size | `GET /api/directory/stats` | Counts only |
 | Resolve a download | `POST /api/directory/<publicId-or-slug>/download` | `{slug, name, sourceType, sourceUrl, sourceHash, commitSha}`. Increments the skill's download counter. Not yet in every deployment; see Workflow step 5 |
@@ -52,7 +52,7 @@ curl -fsS -G "https://vettd.agentichighway.ai/api/skills/lookup" \
 
 Search result cards carry `slug`, `publicId`, `name`, `description`, `overallGrade`, `badgeStatus`, `scannerRunCount`, `sourceType`, `sourceUrl`, `freshness`. Prefer `publicId` (a stable UUID) over `slug` in URLs; slugs are the legacy identifier.
 
-Live references, when you need a field not listed here: `GET /api/openapi.json` (not yet complete for the public read endpoints) and the grading rules at `https://vettd.agentichighway.ai/methodology`.
+Live references, when you need a field not listed here: `GET /api/openapi.json` declares every endpoint above with `security: []` alongside the rest of the keyless public surface, and the site's own drift test fails if the spec and the routes disagree. `/api/directory/<id>/download` and `/api/assets/<kind>/<id>/signals` are the two public routes deliberately left out of the spec. Grading rules: `https://vettd.agentichighway.ai/methodology`.
 
 ## Workflow
 
@@ -90,11 +90,11 @@ Live references, when you need a field not listed here: `GET /api/openapi.json` 
 
 | Situation | Action |
 |---|---|
-| `overallGrade` is `pending`, `scannerRunCount` is 0, or a scanner run has `verdict: null` | Reject. Unscanned is not a safe default |
+| `overallGrade` is `pending`, the card's `scannerRunCount` is 0, or a `scannerRuns[]` entry has `verdict: null` | Reject. Unscanned is not a safe default. `scannerRunCount` exists on search cards only — the detail response carries `scannerRuns[]` instead — and it counts external scanners only (`source !== "vettd"`, `status === "success"`) |
 | Grade `F` | Reject unless the user explicitly overrides |
 | Grade `C`, or any `security` finding at `high`/`critical` | Show the findings to the user before going further |
 | Grade `A`/`B`, no `security` findings above `medium`, `freshness` verified | Acceptable to recommend; still hand off per step 6 |
-| Two candidates tie on grade | Prefer more scanner coverage, then read `findings[]` for both; use `hasEvals`/`hasScripts`/description clarity only as tiebreakers |
+| Two candidates tie on grade | Prefer more scanner coverage, then read `findings[]` for both. `hasEvals`/`hasScripts` are absent from search cards and `/random`, so they are usable as tiebreakers only after the step 3 detail pull |
 
 Grade thresholds and severity meanings are defined at `https://vettd.agentichighway.ai/methodology`. Do not restate them from memory. Grade counts findings from every category, so two skills with the same letter can differ in real risk: always read `findings[]`.
 
@@ -109,10 +109,12 @@ Framework tags (OWASP, NIST, ISO 42001, EU AI Act, CMMC, CISA) are reference con
 | Mistake | Why it's wrong | Fix |
 |---|---|---|
 | Trusting `overallGrade` alone | The letter hides which categories and severities produced it | Read `verdictRationale` and `findings[]` |
-| Treating `status: "unknown"` from `/api/skills/lookup` as safe | It means never assessed, not assessed and clean | Report it as unassessed; submitting it needs an API key the agent must not handle, so ask the user |
+| Treating `status: "unknown"` from `/api/skills/lookup` as safe | It means never assessed, not assessed and clean | Report it as unassessed. The response's own `next` advertises `POST /api/skills/github`, but that needs a dashboard-issued `ah_` key the agent must not handle — ask the user |
+| Reading `status` from `/api/skills/lookup` as a pass/fail flag | `status` is the grade letter (`A`/`B`/`C`/`F`), or `"unknown"` when never assessed | Decide on `grade`, `findingCounts` and `findings[]` |
 | Downloading a branch head instead of `commitSha` | Upstream may have changed since the scan | Fetch the tar at the pinned commit |
 | Installing the skill straight after download | The record describes the scanned version, not your copy | Hand off to **vet-before-install**, or show the user the files |
 | Using `slug` in URLs | Slugs are the legacy identifier and can be ambiguous | Use `publicId` |
-| Sending `limit` above 100, or an unknown `sort` | `400 Invalid filters` | Stay within the ranges in the Command Contract |
+| Sending `limit` above 100, or a `sort` outside the enum | `400 Invalid filters`, returned as `application/problem+json` with `details` naming the failing field | Stay within the ranges in the Command Contract |
+| Expecting `sort=stars` to return skills | It is schema-valid but this endpoint is skills-only: it answers `skills: []`, `total: 0` and a `next.href` pointing at the feed endpoint | Follow `next.href`, or use one of the four skill orders |
 | Retrying on `429` in a loop | Burns the rate limit for everyone behind your IP | Honor `Retry-After`, then retry once |
 | Calling `/api/skills/github`, `/api/scans/ingest` or `/api/skills` | These need a dashboard-issued `ah_` key or a browser session | Out of scope here; use the vettd CLI via **setup-vettd** or ask the user |
