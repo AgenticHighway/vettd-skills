@@ -4,7 +4,7 @@ description: "Use when a previously-scanned artifact needs to be checked for cha
 license: MIT
 metadata:
   author: Agentic Highway
-  version: "0.2.0"
+  version: "0.2.1"
   requires-vettd: ">=0.10.0"
 ---
 
@@ -24,10 +24,9 @@ Detects when a previously-clean artifact has changed since its last scan by diff
 | A monitoring job needs a pass/fail signal on change | Yes |
 | Investigating one specific finding already reported | No — use **triage-a-flagged-finding** |
 
-`vettd` has no built-in baseline or diff feature. `scan_cache.rs` is a
-performance stat-cache only — it does not track change history. All drift
-detection in this skill is performed by the bundled script, not by `vettd`
-itself.
+`vettd` has no built-in baseline or diff feature and keeps no scan history.
+All drift detection in this skill is performed by the bundled script, not by
+`vettd` itself.
 
 ## Command Contract
 
