@@ -22,7 +22,7 @@
       "name": "vettd",
       "source": "./",
       "strict": false,
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Vet skills, MCP servers, and agent configs before installing them, and audit your own agent environment, using the vettd CLI. Requires the vettd binary (setup-vettd walks through install).",
       "homepage": "https://vettd.agentichighway.ai",
       "repository": "https://github.com/AgenticHighway/vettd-skills",

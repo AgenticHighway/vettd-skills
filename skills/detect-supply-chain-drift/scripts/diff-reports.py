@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Diff two vettd JSON scan reports to detect supply-chain drift.
 
-WHY this script exists: vettd has no built-in baseline/diff capability.
-scan_cache.rs is a performance stat-cache, not a change-tracking feature,
-and there is no --baseline flag. This script is the only place drift
-detection logic lives for the detect-supply-chain-drift skill.
+WHY this script exists: vettd has no built-in baseline/diff capability,
+keeps no scan history, and there is no --baseline flag. This script is the
+only place drift detection logic lives for the detect-supply-chain-drift
+skill.
 
 Core insight: every artifact in a vettd report has an `id` shaped like
     <absolute-path>:<12-char-content-hash>

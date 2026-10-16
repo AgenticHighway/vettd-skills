@@ -1,6 +1,6 @@
 {
   "name": "vettd-skills",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Agent-facing skills for vetting AI skills, MCP servers, and agent configs with vettd. browse-directory-api needs no CLI or API key; the other skills need the vettd binary.",
   "author": {
     "name": "Agentic Highway",
