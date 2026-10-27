@@ -110,6 +110,12 @@ row; only `findings[]` rows count toward the grade.
 | Prose describing what your skill does *not* do (e.g. "no network access") | keyword-detection false positive | — | Vettd's keyword matching does not understand negation — mentioning "network access" or "shell execution" in prose, even to disclaim it, can add that permission to your skill's declared surface. Omit the negated mention rather than stating it. |
 | A `signals[]` row you remember as a finding (e.g. repository link, was `VTD-0083`) | — | signal | `VTD-0083` and `VTD-0102`–`VTD-0123` were reclassified from findings to the signal channel; `VTD-0101` was removed. Signals never affect `overallGrade` — don't chase them like findings. Only `externalScannerResults[].findings[]` rows (six categories) count. |
 
+Since scanner 0.3.0, a link to a host on the scanner's curated expected-hosts
+list (a vendor's own docs site, or a repository under a listed GitHub org) no
+longer raises `VTD-0088`. A scan whose only external links are expected hosts
+reports `VTD-0124` instead, an informational note that the check ran. Links to
+any other host still raise `VTD-0088` as described above.
+
 ## Common Mistakes
 
 | Mistake | Why it's wrong |
