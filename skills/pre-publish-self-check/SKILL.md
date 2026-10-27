@@ -102,12 +102,6 @@ row; only `findings[]` rows count toward the grade.
 | Cloud instance metadata endpoint probed | VTD-0029 | security | Remove the probe entirely — a skill has no legitimate reason to read cloud metadata endpoints; this is a known credential-theft vector and fires as `critical` |
 | Shell + network + filesystem access declared together | dangerous-keyword-combo rules | security | Split into narrower steps, drop any tool declaration you don't actually invoke, or document in the skill why the combination is required |
 | Base64 decode-and-use patterns | encoding/obfuscation rules | security | Avoid decode-then-execute flows; if decoding is legitimate, keep the decoded content as inert data, never pipe it to a shell or interpreter |
-
-Since scanner 0.3.0, a link to a curated expected host (a vendor's own docs,
-or a repository under a listed GitHub org) no longer raises `VTD-0088`. A scan
-whose only external links are expected hosts reports `VTD-0124` instead, an
-informational note that the check ran. Links to any other host still raise
-`VTD-0088` as described above.
 | Remote content piped straight to a shell (`curl \| sh`) | remote-exec rules | security | Replace with a pinned, checksum-verified install step; never pipe unreviewed remote output directly into execution |
 | Credential-shaped strings, or scripts reading known credential paths (cloud provider creds, SSH private keys, container registry configs) | secret-pattern rules | security | Remove real-looking keys/tokens from examples; never read credential file paths from a skill script; read real credentials from environment variables instead |
 | Skill name suspiciously close to a known popular skill | typosquatting rules | security | Rename to something clearly distinct — name-proximity to a popular skill is a recognized supply-chain attack pattern, not a style nitpick |
@@ -115,6 +109,12 @@ informational note that the check ran. Links to any other host still raise
 | Overly broad tool/permission declarations | broad-permission rules | structure/security | Declare the narrowest explicit tool list your skill actually uses instead of a wildcard or "all tools" |
 | Prose describing what your skill does *not* do (e.g. "no network access") | keyword-detection false positive | — | Vettd's keyword matching does not understand negation — mentioning "network access" or "shell execution" in prose, even to disclaim it, can add that permission to your skill's declared surface. Omit the negated mention rather than stating it. |
 | A `signals[]` row you remember as a finding (e.g. repository link, was `VTD-0083`) | — | signal | `VTD-0083` and `VTD-0102`–`VTD-0123` were reclassified from findings to the signal channel; `VTD-0101` was removed. Signals never affect `overallGrade` — don't chase them like findings. Only `externalScannerResults[].findings[]` rows (six categories) count. |
+
+Since scanner 0.3.0, a link to a host on the scanner's curated expected-hosts
+list (a vendor's own docs site, or a repository under a listed GitHub org) no
+longer raises `VTD-0088`. A scan whose only external links are expected hosts
+reports `VTD-0124` instead, an informational note that the check ran. Links to
+any other host still raise `VTD-0088` as described above.
 
 ## Common Mistakes
 
