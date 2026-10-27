@@ -102,6 +102,12 @@ row; only `findings[]` rows count toward the grade.
 | Cloud instance metadata endpoint probed | VTD-0029 | security | Remove the probe entirely — a skill has no legitimate reason to read cloud metadata endpoints; this is a known credential-theft vector and fires as `critical` |
 | Shell + network + filesystem access declared together | dangerous-keyword-combo rules | security | Split into narrower steps, drop any tool declaration you don't actually invoke, or document in the skill why the combination is required |
 | Base64 decode-and-use patterns | encoding/obfuscation rules | security | Avoid decode-then-execute flows; if decoding is legitimate, keep the decoded content as inert data, never pipe it to a shell or interpreter |
+
+Since scanner 0.3.0, a link to a curated expected host (a vendor's own docs,
+or a repository under a listed GitHub org) no longer raises `VTD-0088`. A scan
+whose only external links are expected hosts reports `VTD-0124` instead, an
+informational note that the check ran. Links to any other host still raise
+`VTD-0088` as described above.
 | Remote content piped straight to a shell (`curl \| sh`) | remote-exec rules | security | Replace with a pinned, checksum-verified install step; never pipe unreviewed remote output directly into execution |
 | Credential-shaped strings, or scripts reading known credential paths (cloud provider creds, SSH private keys, container registry configs) | secret-pattern rules | security | Remove real-looking keys/tokens from examples; never read credential file paths from a skill script; read real credentials from environment variables instead |
 | Skill name suspiciously close to a known popular skill | typosquatting rules | security | Rename to something clearly distinct — name-proximity to a popular skill is a recognized supply-chain attack pattern, not a style nitpick |
