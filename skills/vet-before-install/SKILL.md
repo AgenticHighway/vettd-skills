@@ -135,10 +135,15 @@ Evaluate in this order. The first matching row wins.
 | --- | --- |
 | Any finding with `severity: "critical"` | **REFUSE.** Do not install. Report the finding(s) verbatim to the human. |
 | `overallGrade: "F"` | **REFUSE.** Do not install. Report why. |
+| `assessmentState` present and not `complete` (`partial`, `failed`, `unsupported`) | **STOP.** The scan did not cover the whole bundle, so the grade only describes what was read and is never `A`. Ask the human, presenting `assessmentReasons` and any findings. Never proceed on the grade alone. |
 | `overallGrade: "C"` | **STOP.** Ask the human, presenting the specific findings, before proceeding either way. |
-| `overallGrade: "B"` | **Proceed with install**, but report the findings to the human afterward. |
-| `overallGrade: "A"` | **Proceed with install.** |
+| `overallGrade: "B"` | **STOP.** `B` is `Conditional`, not `Trusted`: it still carries medium or low findings (for example an unexpected external host). Ask the human, presenting the findings, before installing. |
+| `overallGrade: "A"` and `assessmentState` is `complete` (or absent on an older CLI) | **Proceed with install.** |
 | `overallGrade: "pending"`, missing, or the artifact was never scanned | **Do not proceed.** Scan it yourself (this workflow) until a real grade is produced. |
+
+`trustLevel` follows the same line: only `A` with a complete assessment is
+`Trusted`. `Trusted` is a label about what the scanner observed, not
+permission to fetch, send data, install or run anything beyond this decision.
 
 If any finding needs deeper investigation before you can apply this table
 (e.g. you don't understand why a rule fired):
